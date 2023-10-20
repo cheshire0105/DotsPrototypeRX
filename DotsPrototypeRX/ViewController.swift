@@ -16,6 +16,9 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
     let viewModel: FruitsViewModel
     let disposeBag = DisposeBag()
 
+    // 변수 추가
+      var compositionalCollectionViewTopConstraint: Constraint?
+
     init(viewModel: FruitsViewModel = FruitsViewModel(fruits: fruits)) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -74,6 +77,9 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         bindCompositionalCollectionViewTwo()
 
         compositionalCollectionViewTwo.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+
+        compositionalCollectionViewTwo.delegate = self
+
     }
 
     func setupNavigationTitle() {
@@ -92,11 +98,12 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         }
 
         view.addSubview(compositionalCollectionViewTwo)
-        compositionalCollectionViewTwo.snp.makeConstraints { make in
-            make.top.equalTo(collectionView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom) // 탭바를 침범하지 않도록 safe area에 맞춤
-        }
+             compositionalCollectionViewTwo.snp.makeConstraints { make in
+                 // 제약 조건 저장
+                 compositionalCollectionViewTopConstraint = make.top.equalTo(collectionView.snp.bottom).offset(16).constraint
+                 make.left.right.equalToSuperview()
+                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+             }
     }
 
     func createCompositionalLayoutTwo() -> UICollectionViewLayout {
@@ -175,3 +182,24 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         return CGSize(width: 73, height: 34) // 원하는 크기로 설정
     }
 }
+extension ViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView == compositionalCollectionViewTwo {
+            if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
+                // 스크롤이 아래로 움직일 때
+                navigationController?.setNavigationBarHidden(true, animated: true)
+                collectionView.alpha = 0.0 // collectionView 숨기기
+                // 제약 조건 업데이트
+                compositionalCollectionViewTopConstraint?.update(offset: -40)
+            } else {
+                // 스크롤이 위로 움직일 때
+                navigationController?.setNavigationBarHidden(false, animated: true)
+                collectionView.alpha = 1.0 // collectionView 보이기
+
+                compositionalCollectionViewTopConstraint?.update(offset: 0)
+
+            }
+        }
+    }
+}
+
