@@ -133,17 +133,17 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
     }
 
     func bindCompositionalCollectionViewTwo() {
-          // 세 개의 섹션을 추가
-          let newItems = Array(repeating: "New Item", count: 10) // 여기서 10개의 "New Item"을 생성
-          let sections = [
-              SectionOfFruits(header: "New Section", items: newItems),
-              SectionOfFruits(header: "Section 1", items: viewModel.fruitNames),
-              SectionOfFruits(header: "Section 2", items: viewModel.fruitNames)
-          ]
-          Observable.just(sections)
-              .bind(to: compositionalCollectionViewTwo.rx.items(dataSource: dataSource))
-              .disposed(by: disposeBag)
-      }
+        // 세 개의 섹션을 추가
+        let newItems = Array(repeating: "New Item", count: 10) // 여기서 10개의 "New Item"을 생성
+        let sections = [
+            SectionOfFruits(header: "New Section", items: newItems),
+            SectionOfFruits(header: "Section 1", items: viewModel.fruitNames),
+            SectionOfFruits(header: "Section 2", items: viewModel.fruitNames)
+        ]
+        Observable.just(sections)
+            .bind(to: compositionalCollectionViewTwo.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+    }
 
     func bindCollectionView() {
         let items = Observable.just(viewModel.fruitNames)
