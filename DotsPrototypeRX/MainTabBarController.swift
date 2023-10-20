@@ -29,12 +29,15 @@ class MainTabBarController: UITabBarController {
         self.delegate = self
 
         let firstVC = ViewController(viewModel: FruitsViewModel(fruits: fruits))
+        let firstNavigationController = UINavigationController(rootViewController: firstVC)
+
         let secondVC = SecondViewController()
 
         firstVC.tabBarItem = UITabBarItem(title: "More", image: UIImage(systemName: "ellipsis.circle.fill"), tag: 0)
+        firstNavigationController.tabBarItem = firstVC.tabBarItem
         secondVC.tabBarItem = UITabBarItem(title: "More", image: UIImage(systemName: "ellipsis.circle.fill"), tag: 1)
 
-        viewControllers = [firstVC, secondVC]
+        viewControllers = [firstNavigationController, secondVC]
     }
 
     func 첫번째_아이탬_로티위치() {

@@ -69,10 +69,18 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         super.viewDidLoad()
 
         setupViews()
+        setupNavigationTitle()
         bindCollectionView()
         bindCompositionalCollectionViewTwo()
 
         compositionalCollectionViewTwo.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+    }
+
+    func setupNavigationTitle() {
+        let logo = UIImage(named: "NavigationImage")
+            let imageView = UIImageView(image: logo)
+            imageView.contentMode = .scaleAspectFit
+            navigationItem.titleView = imageView
     }
 
     func setupViews() {
@@ -93,11 +101,11 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
     func createCompositionalLayoutTwo() -> UICollectionViewLayout {
         // For the new section
-        let newItemSize = NSCollectionLayoutSize(widthDimension: .absolute(200), heightDimension: .absolute(330))
+        let newItemSize = NSCollectionLayoutSize(widthDimension: .absolute(260), heightDimension: .absolute(330))
         let newItem = NSCollectionLayoutItem(layoutSize: newItemSize)
         newItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
 
-        let newGroupSize = NSCollectionLayoutSize(widthDimension: .absolute(200), heightDimension: .absolute(330))
+        let newGroupSize = NSCollectionLayoutSize(widthDimension: .absolute(260), heightDimension: .absolute(330))
         let newGroup = NSCollectionLayoutGroup.horizontal(layoutSize: newGroupSize, subitems: [newItem])
 
         let newSection = NSCollectionLayoutSection(group: newGroup)
