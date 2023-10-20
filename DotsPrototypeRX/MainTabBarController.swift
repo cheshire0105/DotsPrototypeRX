@@ -18,14 +18,7 @@ class MainTabBarController: UITabBarController {
         return lottieView
     }()
 
-//    private let 두번째로티 = {
-//        let lottieView = LottieAnimationView(name: "pop")
-//        lottieView.contentMode = .scaleAspectFit
-//        lottieView.loopMode = .playOnce
-//        lottieView.animationSpeed = 1
-//        lottieView.play()
-//        return lottieView
-//    }()
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
