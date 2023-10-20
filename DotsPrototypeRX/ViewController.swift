@@ -53,7 +53,7 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         let layout = createCompositionalLayoutTwo()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
-        collectionView.isScrollEnabled = false
+        collectionView.isScrollEnabled = true // 스크롤 활성화
         collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "compositionalCellTwo")
         return collectionView
     }()
@@ -110,7 +110,7 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         compositionalCollectionViewTwo.snp.makeConstraints { make in
             make.top.equalTo(compositionalCollectionView.snp.bottom).offset(16)
             make.left.right.equalToSuperview()
-            make.height.equalTo(300)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom) // 탭바를 침범하지 않도록 safe area에 맞춤
         }
 
 
@@ -161,11 +161,16 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
 
     func bindCompositionalCollectionViewTwo() {
-        let sections = [SectionOfFruits(header: "Section 1", items: viewModel.fruitNames)]
+        // 두 개의 섹션을 추가
+        let sections = [
+            SectionOfFruits(header: "Section 1", items: viewModel.fruitNames),
+            SectionOfFruits(header: "Section 2", items: viewModel.fruitNames) // 새로 추가된 섹션
+        ]
         Observable.just(sections)
             .bind(to: compositionalCollectionViewTwo.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
+
 
 
 
