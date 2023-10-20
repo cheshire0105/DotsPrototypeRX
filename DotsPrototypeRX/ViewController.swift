@@ -13,8 +13,6 @@ import RxDataSources
 
 class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
-
-
     let viewModel: FruitsViewModel
     let disposeBag = DisposeBag()
 
@@ -28,7 +26,6 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         super.init(coder: coder)
     }
 
-
     lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
@@ -37,15 +34,6 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.backgroundColor = .white
         collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "customCell")
-        return collectionView
-    }()
-
-    lazy var compositionalCollectionView: UICollectionView = {
-        let layout = createCompositionalLayout()
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
-        collectionView.isScrollEnabled = false
-        collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "compositionalCell")
         return collectionView
     }()
 
@@ -77,18 +65,14 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         }
     )
 
-
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupViews()
         bindCollectionView()
-        bindCompositionalCollectionView()
         bindCompositionalCollectionViewTwo()
-        
-        compositionalCollectionViewTwo.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
 
+        compositionalCollectionViewTwo.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
     }
 
     func setupViews() {
@@ -99,93 +83,67 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
             make.height.equalTo(40)
         }
 
-        view.addSubview(compositionalCollectionView)
-        compositionalCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(collectionView.snp.bottom).offset(16) // 기존 컬렉션 뷰 아래에 위치
-            make.left.right.equalToSuperview()
-            make.height.equalTo(314)
-        }
-
         view.addSubview(compositionalCollectionViewTwo)
         compositionalCollectionViewTwo.snp.makeConstraints { make in
-            make.top.equalTo(compositionalCollectionView.snp.bottom).offset(16)
+            make.top.equalTo(collectionView.snp.bottom).offset(16)
             make.left.right.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom) // 탭바를 침범하지 않도록 safe area에 맞춤
         }
-
-
-    }
-
-    func createCompositionalLayout() -> UICollectionViewLayout {
-        // 아이템 크기 정의
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-
-        // 그룹 크기 정의
-        let groupWidth = CGFloat(233)  // 원하는 너비로 변경
-        let groupHeight = CGFloat(314)  // 원하는 높이로 변경
-        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(groupWidth), heightDimension: .absolute(groupHeight))
-
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-
-        return UICollectionViewCompositionalLayout(section: section)
     }
 
     func createCompositionalLayoutTwo() -> UICollectionViewLayout {
-        // Define item size
+        // For the new section
+        let newItemSize = NSCollectionLayoutSize(widthDimension: .absolute(200), heightDimension: .absolute(330))
+        let newItem = NSCollectionLayoutItem(layoutSize: newItemSize)
+        newItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
+
+        let newGroupSize = NSCollectionLayoutSize(widthDimension: .absolute(200), heightDimension: .absolute(330))
+        let newGroup = NSCollectionLayoutGroup.horizontal(layoutSize: newGroupSize, subitems: [newItem])
+
+        let newSection = NSCollectionLayoutSection(group: newGroup)
+        newSection.orthogonalScrollingBehavior = .continuous
+
+        // For the existing section
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
 
-        // Define group size
-        let groupWidth = CGFloat(133)  // Adjust to your desired width
-        let groupHeight = CGFloat(190) // Adjust to your desired height
+        let groupWidth = CGFloat(133)
+        let groupHeight = CGFloat(190)
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(groupWidth), heightDimension: .absolute(groupHeight))
-
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
 
-        // 섹션 헤더 추가
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
         section.boundarySupplementaryItems = [header]
 
-        return UICollectionViewCompositionalLayout(section: section)
-    }
+        // Combine the two sections
+        let layout = UICollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
+            if sectionIndex == 0 {
+                return newSection
+            } else {
+                return section
+            }
+        }
 
+        return layout
+    }
 
     func bindCompositionalCollectionViewTwo() {
-        // 두 개의 섹션을 추가
-        let sections = [
-            SectionOfFruits(header: "Section 1", items: viewModel.fruitNames),
-            SectionOfFruits(header: "Section 2", items: viewModel.fruitNames) // 새로 추가된 섹션
-        ]
-        Observable.just(sections)
-            .bind(to: compositionalCollectionViewTwo.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-    }
-
-
-
-
-
-    func bindCompositionalCollectionView() {
-        let items = Observable.just(viewModel.fruitNames)
-
-        items.bind(to: compositionalCollectionView.rx.items(cellIdentifier: "compositionalCell", cellType: CustomCell.self)) { (row, text, cell) in
-            cell.label.text = text
-            cell.backgroundColor = .gray
-            cell.layer.cornerRadius = 10
-            cell.contentView.clipsToBounds = true
-        }.disposed(by: disposeBag)
-    }
-
+          // 세 개의 섹션을 추가
+          let newItems = Array(repeating: "New Item", count: 10) // 여기서 10개의 "New Item"을 생성
+          let sections = [
+              SectionOfFruits(header: "New Section", items: newItems),
+              SectionOfFruits(header: "Section 1", items: viewModel.fruitNames),
+              SectionOfFruits(header: "Section 2", items: viewModel.fruitNames)
+          ]
+          Observable.just(sections)
+              .bind(to: compositionalCollectionViewTwo.rx.items(dataSource: dataSource))
+              .disposed(by: disposeBag)
+      }
 
     func bindCollectionView() {
         let items = Observable.just(viewModel.fruitNames)
@@ -204,12 +162,8 @@ class ViewController: UIViewController, UICollectionViewDelegateFlowLayout {
         collectionView.rx.setDelegate(self).disposed(by: disposeBag)
     }
 
-
-
-
     // UICollectionViewDelegateFlowLayout 메서드를 직접 구현
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 73, height: 34) // 원하는 크기로 설정
     }
 }
-
